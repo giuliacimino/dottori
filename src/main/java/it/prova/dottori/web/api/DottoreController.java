@@ -14,13 +14,13 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.HttpStatus;
 
+import it.prova.dottore.web.api.exception.DottoreNonDisponibileException;
 import it.prova.dottore.web.api.exception.DottoreNotFoundException;
 import it.prova.dottore.web.api.exception.IdNotNullForInsertException;
 import it.prova.dottori.dto.DottoreDTO;
+import it.prova.dottori.dto.DottorePazienteDTO;
 import it.prova.dottori.model.Dottore;
 import it.prova.dottori.service.DottoreService;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 @RestController
 @RequestMapping("api/dottore")
@@ -64,6 +64,39 @@ public class DottoreController {
 
 		dottoreService.rimuovi(dottoreDaEliminare);
 	}
+	
+	@GetMapping("/assegnaPaziente/{codiceDottore}")
+	public DottoreDTO assegnaPaziente(@PathVariable(required = true) String codiceDottore) {
+		Dottore result = dottoreService.verificaDisponibilita(codiceDottore);
+
+		if (result == null)
+			throw new DottoreNotFoundException("dottore non trovato");
+
+		if (!result.isInServizio() || result.isInVisita())
+			throw new DottoreNonDisponibileException("errore: dottore non disponibile.");
+
+		return DottoreDTO.buildDottoreDTOFromModel(result);
+	}
+	
+	
+	@PostMapping("/impostaVisita")
+	public DottorePazienteDTO impostaVisita(@RequestBody DottorePazienteDTO dottorePazienteDTO) {
+
+		Dottore dottore = Dottore.builder().codiceDottore(dottorePazienteDTO.getCodiceDottore()).codFiscalePazienteAttualmenteInVisita(dottorePazienteDTO.getCodFiscalePazienteAttualmenteInVisita()).build();
+
+		return DottorePazienteDTO.buildDottoreDTOFromModel(dottoreService.impostaDottore(dottore));
+	}
+	
+	
+	@PostMapping("/ricovera")
+	public DottorePazienteDTO ricovera(@RequestBody DottorePazienteDTO dottorePazienteDTO) {
+		Dottore dottore = Dottore.builder().codiceDottore(dottorePazienteDTO.getCodiceDottore()).codFiscalePazienteAttualmenteInVisita(dottorePazienteDTO.getCodFiscalePazienteAttualmenteInVisita()).build();
+
+		return DottorePazienteDTO.buildDottoreDTOFromModel(dottoreService.ricovera(dottore));
+	}
+	
+	
+	
 	
 	
 	

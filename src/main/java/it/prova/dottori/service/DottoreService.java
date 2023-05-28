@@ -15,5 +15,13 @@ public interface DottoreService {
 	public Dottore inserisciNuovo(Dottore dottoreInstance);
 
 	public void rimuovi(Dottore dottoreInstance);
+	
+	Dottore verificaDisponibilita(String codiceDottoreInstance);
+	
+	Dottore impostaDottore(Dottore dottoreInstance);
+	
+	public Dottore ricovera(Dottore dottoreInstance);
+
+
 
 }

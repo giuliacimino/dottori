@@ -3,12 +3,15 @@ package it.prova.dottori.service;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import it.prova.dottore.web.api.exception.DottoreInServizioException;
 import it.prova.dottore.web.api.exception.DottoreInVisitaException;
 import it.prova.dottori.model.Dottore;
 import it.prova.dottori.repository.dottore.DottoreRepository;
 
+
+@Service
 public class DottoreServiceImpl implements DottoreService{
 	
 	@Autowired
@@ -47,6 +50,27 @@ public class DottoreServiceImpl implements DottoreService{
 			throw new DottoreInVisitaException("non è possibile rimuovere un dottore in visita");
 		}
 		
+	}
+
+	@Override
+	public Dottore verificaDisponibilita(String codiceDottoreInstance) {
+		return repository.findByCodiceDottore(codiceDottoreInstance);
+
+	}
+
+	@Override
+	public Dottore impostaDottore(Dottore dottoreInstance) {
+		Dottore result = repository.findByCodiceDottore(dottoreInstance.getCodiceDottore());
+		result.setCodFiscalePazienteAttualmenteInVisita(dottoreInstance.getCodFiscalePazienteAttualmenteInVisita());
+		return repository.save(result);
+	}
+
+	@Override
+	public Dottore ricovera(Dottore dottoreInstance) {
+		Dottore result = repository.findByCodiceDottore(dottoreInstance.getCodiceDottore());
+		result.setCodFiscalePazienteAttualmenteInVisita(null);
+		result.setInVisita(false);
+		return repository.save(result);
 	}
 	
 	
